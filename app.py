@@ -77,30 +77,37 @@ for message in st.session_state.chat_history :
         with st.chat_message("AI"):
             st.markdown(message.content)
 
-
+# Initialize count variable if it's not already initialized
+count = st.session_state.get('count', 0)
+user = 0
+# Check if user_query matches "job seeker" or if count is already incremented
 if user_query is not None:
-    if user_query.lower() in ["job seeker", "job", "student"]:
-        pdf = st.sidebar.file_uploader("Upload resumes here, only PDF files allowed", type=["pdf"], accept_multiple_files=True)
-        submit = st.sidebar.button("Help me with the analysis")
-        if submit:
-            with st.spinner('Wait for it...'):
-                st.session_state['unique_id'] = uuid.uuid4().hex
-                final_docs_list = create_docs(pdf, st.session_state['unique_id'])
+    # Increment count if the user query matches "job seeker" for the first time
+    if count == 0  and (user_query.lower() in ["job seeker", "job", "student"] or count > 0):
+        user = 1
+        count +=1
+        st.session_state['count'] = count
 
-                # Displaying the count of resumes that have been uploaded
-                st.sidebar.write("*Resumes uploaded* :" + str(len(final_docs_list)))
+    if count == 0  and (user_query.lower() in ["institute"] or count > 0):
+        user = 2        
+        count+=1
+        st.session_state['count'] = count
+    # Generate a unique key for the file uploader widget
+    file_uploader_key = f"file_uploader_{count}"
 
-                # Create embeddings instance
-                embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Display the sidebar elements with the unique key
+    pdf = st.sidebar.file_uploader("Upload resumes here, only PDF files allowed", key=file_uploader_key, type=["pdf"], accept_multiple_files=True)
+    submit = st.sidebar.button("Help me with the analysis")
 
-                # Push data to PINECONE
-                push_to_pinecone(
-                    ["PINECONE_API KEY2"],
-                    "gcp-starter",  # pinecone environment
-                    "qa",  # pinecone nameIndex
-                    embeddings,  # embeddings
-                    final_docs_list)  # document list
-    
+    if pdf is not None and submit:
+        # Continue executing the analysis code
+        with st.spinner('Wait for it...'):
+            st.session_state['unique_id'] = uuid.uuid4().hex
+            final_docs_list = create_docs(pdf, st.session_state['unique_id'])
+
+            # Display the count of resumes that have been uploaded
+            st.sidebar.write("*Resumes uploaded* :" + str(len(final_docs_list)))
+
 
 
 # 
