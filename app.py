@@ -79,17 +79,14 @@ for message in st.session_state.chat_history :
 
 # Initialize count variable if it's not already initialized
 count = st.session_state.get('count', 0)
-user = 0
 # Check if user_query matches "job seeker" or if count is already incremented
-if user_query is not None:
+if user_query is not None and (user_query.lower() in ["job seeker", "job", "student"] or count > 0):
     # Increment count if the user query matches "job seeker" for the first time
-    if count == 0  and (user_query.lower() in ["job seeker", "job", "student"] or count > 0):
-        user = 1
+    if count == 0  :
         count +=1
         st.session_state['count'] = count
 
-    if count == 0  and (user_query.lower() in ["institute"] or count > 0):
-        user = 2        
+    if count == 0  and (user_query.lower() in ["institute"] or count > 0):        
         count+=1
         st.session_state['count'] = count
     # Generate a unique key for the file uploader widget
