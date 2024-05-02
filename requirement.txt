@@ -1,0 +1,8 @@
+python === 3.12
+streamlit 
+lamgchain === 0.1.0
+openai
+pinecone
+pypdf
+pinecone-client
+langchain --upgrade
